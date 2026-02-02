@@ -71,9 +71,6 @@ const LoadingContainer = styled.div`
   font-size: 1.2rem;
 `;
 
-const MODEL_URL =
-  "https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb";
-
 export default function HomePage() {
   return (
     <ViewportContainer>
@@ -86,7 +83,7 @@ export default function HomePage() {
         </Column>
       </Header>
 
-      <ThreeCanvas modelUrl={MODEL_URL} />
+      <ThreeCanvas />
 
       <InfoPanel $gap="8px">
         <Caption $color="#a1a1aa">조작 방법</Caption>

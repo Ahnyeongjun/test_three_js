@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
 import styled from "styled-components";
 import LightingSetup from "./LightingSetup";
-import ModelViewer from "./ModelViewer";
+import TestModel from "./TestModel";
 
 const CanvasContainer = styled.div`
   width: 100%;
@@ -13,17 +13,8 @@ const CanvasContainer = styled.div`
   background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f0f 100%);
 `;
 
-const LoadingOverlay = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 1.2rem;
-`;
-
 interface ThreeCanvasProps {
-  modelUrl: string;
+  modelUrl?: string;
 }
 
 function LoadingFallback() {
@@ -48,12 +39,12 @@ export default function ThreeCanvas({ modelUrl }: ThreeCanvasProps) {
         <LightingSetup />
 
         <Suspense fallback={<LoadingFallback />}>
-          <ModelViewer modelUrl={modelUrl} />
+          <TestModel />
           <Environment preset="city" />
         </Suspense>
 
         <ContactShadows
-          position={[0, -1.5, 0]}
+          position={[0, -2, 0]}
           opacity={0.4}
           scale={10}
           blur={2}
@@ -72,7 +63,7 @@ export default function ThreeCanvas({ modelUrl }: ThreeCanvasProps) {
           enableDamping
         />
 
-        <gridHelper args={[20, 20, "#27272a", "#1a1a1a"]} position={[0, -1.5, 0]} />
+        <gridHelper args={[20, 20, "#27272a", "#1a1a1a"]} position={[0, -2, 0]} />
       </Canvas>
     </CanvasContainer>
   );

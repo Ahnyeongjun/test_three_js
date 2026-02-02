@@ -13,7 +13,7 @@ interface ModelViewerProps {
 interface PartData {
   object: Object3D;
   originalPosition: Vector3;
-  direction: Vector3;
+  explodeDirection: Vector3;
 }
 
 export default function ModelViewer({ modelUrl }: ModelViewerProps) {
@@ -21,6 +21,7 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
   const { scene } = useGLTF(modelUrl);
   const { explodeLevel, setIsLoading } = useModelStore();
   const partsRef = useRef<PartData[]>([]);
+  const centerRef = useRef<Vector3>(new Vector3());
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone(true);
@@ -47,27 +48,49 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
   useEffect(() => {
     if (!clonedScene) return;
 
+    // 디버깅: 모델 구조 출력
+    console.log("=== Model Structure ===");
+    clonedScene.traverse((child: Object3D) => {
+      const indent = "  ".repeat(child.parent ? getDepth(child) : 0);
+      console.log(`${indent}${child.type}: "${child.name}" pos:(${child.position.x.toFixed(2)}, ${child.position.y.toFixed(2)}, ${child.position.z.toFixed(2)})`);
+    });
+
+    // 모델 전체의 중심점 계산
     const box = new Box3().setFromObject(clonedScene);
-    const center = new Vector3();
-    box.getCenter(center);
+    box.getCenter(centerRef.current);
 
     const parts: PartData[] = [];
 
     clonedScene.traverse((child: Object3D) => {
-      if (child instanceof Mesh) {
+      // SkinnedMesh나 Bone은 제외, 일반 Mesh만 처리
+      if (child instanceof Mesh && child.type === "Mesh") {
+        // 로컬 위치 저장 (원래 위치)
+        const originalPos = child.position.clone();
+
+        // 월드 좌표로 방향 계산
         const worldPos = new Vector3();
         child.getWorldPosition(worldPos);
 
-        const direction = worldPos.clone().sub(center).normalize();
-        if (direction.length() < 0.01) {
-          direction.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+        // 중심에서 파츠 방향으로의 벡터 계산
+        const direction = worldPos.clone().sub(centerRef.current);
+
+        // 방향이 너무 작으면 랜덤 방향 설정
+        if (direction.length() < 0.1) {
+          direction.set(
+            (Math.random() - 0.5) * 2,
+            (Math.random() - 0.5) * 2,
+            (Math.random() - 0.5) * 2
+          );
         }
+        direction.normalize();
 
         parts.push({
           object: child,
-          originalPosition: worldPos.clone(),
-          direction: direction,
+          originalPosition: originalPos,
+          explodeDirection: direction,
         });
+
+        console.log(`Part added: "${child.name}" type: ${child.type}`);
       }
     });
 
@@ -75,14 +98,27 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
     setIsLoading(false);
   }, [clonedScene, setIsLoading]);
 
+  // 계층 깊이 계산 헬퍼
+  function getDepth(obj: Object3D): number {
+    let depth = 0;
+    let parent = obj.parent;
+    while (parent) {
+      depth++;
+      parent = parent.parent;
+    }
+    return depth;
+  }
+
   useFrame(() => {
-    const explodeDistance = 2;
+    const explodeDistance = 1.5; // 분리 거리
 
     partsRef.current.forEach((part) => {
+      // 원래 로컬 위치 + (방향 * explodeLevel * 거리)
       const targetPosition = part.originalPosition
         .clone()
-        .add(part.direction.clone().multiplyScalar(explodeLevel * explodeDistance));
+        .add(part.explodeDirection.clone().multiplyScalar(explodeLevel * explodeDistance));
 
+      // 부드러운 전환
       part.object.position.lerp(targetPosition, 0.1);
     });
   });
