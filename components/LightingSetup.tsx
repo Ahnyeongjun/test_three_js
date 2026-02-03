@@ -3,20 +3,28 @@
 import { useRef } from "react";
 import { DirectionalLight, SpotLight } from "three";
 
-export default function LightingSetup() {
+interface LightingSetupProps {
+  keyLightIntensity?: number;
+  ambientIntensity?: number;
+}
+
+export default function LightingSetup({
+  keyLightIntensity = 2.0,
+  ambientIntensity = 0.2,
+}: LightingSetupProps) {
   const directionalRef = useRef<DirectionalLight>(null);
   const spotRef = useRef<SpotLight>(null);
 
   return (
     <>
-      {/* Ambient light for base illumination */}
-      <ambientLight intensity={0.4} color="#ffffff" />
+      {/* Ambient light - 낮게 설정해서 대비 강조 */}
+      <ambientLight intensity={ambientIntensity} color="#ffffff" />
 
-      {/* Main directional light (sun-like) */}
+      {/* Main key light - 강한 메인 조명 */}
       <directionalLight
         ref={directionalRef}
-        position={[5, 10, 7]}
-        intensity={1.2}
+        position={[5, 8, 5]}
+        intensity={keyLightIntensity}
         color="#ffffff"
         castShadow
         shadow-mapSize-width={2048}
@@ -28,32 +36,38 @@ export default function LightingSetup() {
         shadow-camera-bottom={-10}
       />
 
-      {/* Fill light from opposite side */}
+      {/* Fill light - 반대편에서 부드럽게 */}
       <directionalLight
-        position={[-5, 5, -5]}
-        intensity={0.5}
-        color="#e0e7ff"
+        position={[-4, 4, -4]}
+        intensity={0.8}
+        color="#c7d2fe"
       />
 
-      {/* Spotlight for dramatic effect */}
+      {/* Top spotlight - 위에서 하이라이트 */}
       <spotLight
         ref={spotRef}
-        position={[0, 15, 0]}
-        angle={0.4}
-        penumbra={0.5}
-        intensity={0.8}
+        position={[0, 12, 0]}
+        angle={0.5}
+        penumbra={0.8}
+        intensity={1.5}
         color="#ffffff"
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
 
-      {/* Rim light for edge highlighting */}
-      <pointLight position={[-10, 5, -10]} intensity={0.3} color="#818cf8" />
+      {/* Back rim light - 뒤에서 실루엣 강조 */}
+      <pointLight position={[-3, 3, -5]} intensity={0.8} color="#818cf8" />
 
-      {/* Environment hemisphere light */}
+      {/* Front accent light - 앞에서 반사 강조 */}
+      <pointLight position={[3, 2, 4]} intensity={0.5} color="#f0abfc" />
+
+      {/* Bottom bounce light - 바닥 반사광 시뮬레이션 */}
+      <pointLight position={[0, -3, 0]} intensity={0.3} color="#6366f1" />
+
+      {/* Hemisphere light - 하늘/땅 그라데이션 */}
       <hemisphereLight
-        args={["#87ceeb", "#362312", 0.5]}
+        args={["#a5b4fc", "#1e1b4b", 0.4]}
         position={[0, 50, 0]}
       />
     </>

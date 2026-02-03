@@ -3,9 +3,12 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
+import { EffectComposer, Bloom, N8AO, ToneMapping } from "@react-three/postprocessing";
+import { ToneMappingMode } from "postprocessing";
 import styled from "styled-components";
 import LightingSetup from "./LightingSetup";
 import TestModel from "./TestModel";
+import { useRenderStore } from "@/zustand/useRenderStore";
 
 const CanvasContainer = styled.div`
   width: 100%;
@@ -27,27 +30,51 @@ function LoadingFallback() {
 }
 
 export default function ThreeCanvas({ modelUrl }: ThreeCanvasProps) {
+  const { bloom, ao, lighting } = useRenderStore();
+
   return (
     <CanvasContainer>
       <Canvas
         shadows
         camera={{ position: [5, 3, 5], fov: 50 }}
-        gl={{ antialias: true, alpha: true }}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         <color attach="background" args={["#0f0f0f"]} />
 
-        <LightingSetup />
+        <LightingSetup
+          keyLightIntensity={lighting.keyLightIntensity}
+          ambientIntensity={lighting.ambientIntensity}
+        />
 
         <Suspense fallback={<LoadingFallback />}>
           <TestModel />
-          <Environment preset="city" />
+          <Environment preset="city" background={false} />
         </Suspense>
+
+        {/* 포스트 프로세싱 효과 */}
+        <EffectComposer>
+          {/* Bloom - 광택 반사 글로우 */}
+          <Bloom
+            intensity={bloom.intensity}
+            luminanceThreshold={bloom.threshold}
+            luminanceSmoothing={bloom.smoothing}
+            mipmapBlur
+          />
+          {/* N8AO - 앰비언트 오클루전 (틈새 그림자) */}
+          <N8AO
+            aoRadius={ao.radius}
+            intensity={ao.intensity}
+            distanceFalloff={0.5}
+          />
+          {/* 톤 매핑 - 색감 보정 */}
+          <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+        </EffectComposer>
 
         <ContactShadows
           position={[0, -2, 0]}
-          opacity={0.4}
+          opacity={0.5}
           scale={10}
-          blur={2}
+          blur={2.5}
           far={4}
         />
 

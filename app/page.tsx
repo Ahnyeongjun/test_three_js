@@ -11,6 +11,11 @@ const ThreeCanvas = dynamic(() => import("@/components/ThreeCanvas"), {
   loading: () => <LoadingContainer>3D 뷰포트 로딩 중...</LoadingContainer>,
 });
 
+const ShaderControlPanel = dynamic(
+  () => import("@/components/ShaderControlPanel"),
+  { ssr: false }
+);
+
 const ViewportContainer = styled(FullScreen)`
   position: relative;
   background: ${({ theme }) => theme.colors.background};
@@ -84,6 +89,8 @@ export default function HomePage() {
       </Header>
 
       <ThreeCanvas />
+
+      <ShaderControlPanel />
 
       <InfoPanel $gap="8px">
         <Caption $color="#a1a1aa">조작 방법</Caption>

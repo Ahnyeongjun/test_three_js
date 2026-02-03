@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Group, Vector3, Mesh } from "three";
 import { useModelStore } from "@/zustand/useModelStore";
+import { useRenderStore } from "@/zustand/useRenderStore";
 
 interface PartData {
   mesh: Mesh;
@@ -14,6 +15,7 @@ interface PartData {
 export default function TestModel() {
   const groupRef = useRef<Group>(null);
   const { explodeLevel, setIsLoading } = useModelStore();
+  const { material } = useRenderStore();
   const partsRef = useRef<PartData[]>([]);
   const initialized = useRef(false);
 
@@ -60,40 +62,70 @@ export default function TestModel() {
 
   return (
     <group ref={groupRef}>
-      {/* 몸통 (중앙) */}
-      <mesh position={[0, 0, 0]}>
+      {/* 몸통 (중앙) - 광택 금속 */}
+      <mesh position={[0, 0, 0]} castShadow receiveShadow>
         <boxGeometry args={[1, 1.5, 0.6]} />
-        <meshStandardMaterial color="#6366f1" roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial
+          color="#6366f1"
+          roughness={material.roughness}
+          metalness={material.metalness}
+          envMapIntensity={material.envMapIntensity}
+        />
       </mesh>
 
-      {/* 머리 */}
-      <mesh position={[0, 1.2, 0]}>
+      {/* 머리 - 크롬 */}
+      <mesh position={[0, 1.2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.6, 0.6, 0.6]} />
-        <meshStandardMaterial color="#8b5cf6" roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial
+          color="#ffffff"
+          roughness={material.roughness * 0.5}
+          metalness={Math.min(material.metalness * 1.1, 1)}
+          envMapIntensity={material.envMapIntensity * 1.3}
+        />
       </mesh>
 
-      {/* 왼팔 */}
-      <mesh position={[-0.8, 0.3, 0]}>
+      {/* 왼팔 - 광택 청록 */}
+      <mesh position={[-0.8, 0.3, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 1, 0.4]} />
-        <meshStandardMaterial color="#22d3ee" roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial
+          color="#22d3ee"
+          roughness={material.roughness * 1.5}
+          metalness={material.metalness * 0.95}
+          envMapIntensity={material.envMapIntensity * 0.8}
+        />
       </mesh>
 
-      {/* 오른팔 */}
-      <mesh position={[0.8, 0.3, 0]}>
+      {/* 오른팔 - 광택 청록 */}
+      <mesh position={[0.8, 0.3, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 1, 0.4]} />
-        <meshStandardMaterial color="#22d3ee" roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial
+          color="#22d3ee"
+          roughness={material.roughness * 1.5}
+          metalness={material.metalness * 0.95}
+          envMapIntensity={material.envMapIntensity * 0.8}
+        />
       </mesh>
 
-      {/* 왼다리 */}
-      <mesh position={[-0.3, -1.2, 0]}>
+      {/* 왼다리 - 광택 핑크 */}
+      <mesh position={[-0.3, -1.2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.4, 1, 0.4]} />
-        <meshStandardMaterial color="#f472b6" roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial
+          color="#f472b6"
+          roughness={material.roughness * 2}
+          metalness={material.metalness * 0.9}
+          envMapIntensity={material.envMapIntensity * 0.7}
+        />
       </mesh>
 
-      {/* 오른다리 */}
-      <mesh position={[0.3, -1.2, 0]}>
+      {/* 오른다리 - 광택 핑크 */}
+      <mesh position={[0.3, -1.2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.4, 1, 0.4]} />
-        <meshStandardMaterial color="#f472b6" roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial
+          color="#f472b6"
+          roughness={material.roughness * 2}
+          metalness={material.metalness * 0.9}
+          envMapIntensity={material.envMapIntensity * 0.7}
+        />
       </mesh>
     </group>
   );

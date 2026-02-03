@@ -46,3 +46,32 @@ export interface Theme {
     lg: string;
   };
 }
+
+export interface RenderSettings {
+  bloom: {
+    intensity: number;
+    threshold: number;
+    smoothing: number;
+  };
+  ao: {
+    radius: number;
+    intensity: number;
+  };
+  material: {
+    roughness: number;
+    metalness: number;
+    envMapIntensity: number;
+  };
+  lighting: {
+    keyLightIntensity: number;
+    ambientIntensity: number;
+  };
+}
+
+export interface RenderState extends RenderSettings {
+  setBloom: (bloom: Partial<RenderSettings["bloom"]>) => void;
+  setAO: (ao: Partial<RenderSettings["ao"]>) => void;
+  setMaterial: (material: Partial<RenderSettings["material"]>) => void;
+  setLighting: (lighting: Partial<RenderSettings["lighting"]>) => void;
+  reset: () => void;
+}
