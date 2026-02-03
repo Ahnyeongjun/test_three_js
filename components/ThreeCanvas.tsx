@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useRef, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
 import { EffectComposer, Bloom, N8AO, ToneMapping } from "@react-three/postprocessing";
@@ -33,12 +33,30 @@ function LoadingFallback() {
 
 export default function ThreeCanvas({ modelUrl: propModelUrl }: ThreeCanvasProps) {
   const { bloom, ao, lighting } = useRenderStore();
-  const { isTransforming, modelUrl: storeModelUrl } = useModelStore();
+  const { isTransforming, modelUrl: storeModelUrl, explodeLevel, setExplodeLevel } = useModelStore();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const activeModelUrl = storeModelUrl || propModelUrl;
 
+  const handleWheel = useCallback((e: WheelEvent) => {
+    if (e.shiftKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.05 : 0.05;
+      const newLevel = Math.max(0, Math.min(1, explodeLevel + delta));
+      setExplodeLevel(newLevel);
+    }
+  }, [explodeLevel, setExplodeLevel]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
+
   return (
-    <CanvasContainer>
+    <CanvasContainer ref={containerRef}>
       <Canvas
         shadows
         camera={{ position: [5, 3, 5], fov: 50 }}
