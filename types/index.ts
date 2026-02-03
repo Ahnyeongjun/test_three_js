@@ -6,6 +6,18 @@ export interface ModelPart {
   originalPosition: Vector3;
 }
 
+export interface MeshInfo {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface MeshPosition {
+  x: number;
+  y: number;
+  z: number;
+}
+
 export interface ModelState {
   explodeLevel: number;
   setExplodeLevel: (level: number) => void;
@@ -13,6 +25,21 @@ export interface ModelState {
   setIsLoading: (loading: boolean) => void;
   modelParts: ModelPart[];
   setModelParts: (parts: ModelPart[]) => void;
+  meshList: MeshInfo[];
+  setMeshList: (list: MeshInfo[]) => void;
+  selectedMeshId: string | null;
+  setSelectedMeshId: (id: string | null) => void;
+  meshPositions: Record<string, MeshPosition>;
+  setMeshPosition: (id: string, position: MeshPosition) => void;
+  resetAllPositions: () => void;
+  isTransforming: boolean;
+  setIsTransforming: (value: boolean) => void;
+  isEditMode: boolean;
+  setIsEditMode: (value: boolean) => void;
+  modelUrl: string | null;
+  setModelUrl: (url: string | null) => void;
+  modelName: string | null;
+  setModelName: (name: string | null) => void;
 }
 
 export interface ThemeColors {

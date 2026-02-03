@@ -16,6 +16,16 @@ const ShaderControlPanel = dynamic(
   { ssr: false }
 );
 
+const MeshListPanel = dynamic(
+  () => import("@/components/MeshListPanel"),
+  { ssr: false }
+);
+
+const FileUploader = dynamic(
+  () => import("@/components/FileUploader"),
+  { ssr: false }
+);
+
 const ViewportContainer = styled(FullScreen)`
   position: relative;
   background: ${({ theme }) => theme.colors.background};
@@ -91,6 +101,8 @@ export default function HomePage() {
       <ThreeCanvas />
 
       <ShaderControlPanel />
+      <MeshListPanel />
+      <FileUploader />
 
       <InfoPanel $gap="8px">
         <Caption $color="#a1a1aa">조작 방법</Caption>

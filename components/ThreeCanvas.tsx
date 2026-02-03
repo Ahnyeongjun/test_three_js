@@ -8,7 +8,9 @@ import { ToneMappingMode } from "postprocessing";
 import styled from "styled-components";
 import LightingSetup from "./LightingSetup";
 import TestModel from "./TestModel";
+import ModelViewer from "./ModelViewer";
 import { useRenderStore } from "@/zustand/useRenderStore";
+import { useModelStore } from "@/zustand/useModelStore";
 
 const CanvasContainer = styled.div`
   width: 100%;
@@ -29,8 +31,11 @@ function LoadingFallback() {
   );
 }
 
-export default function ThreeCanvas({ modelUrl }: ThreeCanvasProps) {
+export default function ThreeCanvas({ modelUrl: propModelUrl }: ThreeCanvasProps) {
   const { bloom, ao, lighting } = useRenderStore();
+  const { isTransforming, modelUrl: storeModelUrl } = useModelStore();
+
+  const activeModelUrl = storeModelUrl || propModelUrl;
 
   return (
     <CanvasContainer>
@@ -47,7 +52,11 @@ export default function ThreeCanvas({ modelUrl }: ThreeCanvasProps) {
         />
 
         <Suspense fallback={<LoadingFallback />}>
-          <TestModel />
+          {activeModelUrl ? (
+            <ModelViewer modelUrl={activeModelUrl} />
+          ) : (
+            <TestModel />
+          )}
           <Environment preset="city" background={false} />
         </Suspense>
 
@@ -79,6 +88,7 @@ export default function ThreeCanvas({ modelUrl }: ThreeCanvasProps) {
         />
 
         <OrbitControls
+          enabled={!isTransforming}
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
